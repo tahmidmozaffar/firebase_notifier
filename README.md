@@ -45,7 +45,7 @@ I added amplitude to see some analytics of the project. If you don't want to use
 
 
 
-##Future development
+## Future development
 - Add support for sending notifications to iOS Apps
 - Add proper authentication to access this tool.  
 - Add feature to save message as template.
