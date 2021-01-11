@@ -1,46 +1,52 @@
-# Getting Started with Create React App
+#Firebase Notifier
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a tool for sending firebase push notifications to client apps. Currently I added support to 
+send notifications only to Android apps, but iOS support will be added later.
+ 
+You can use this tool from here. https://firebase-notifier.vercel.app/.
 
-## Available Scripts
+or using it from the source connecting to your own firebase account.  
 
-In the project directory, you can run:
 
-### `yarn start`
+##How does it work?
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+It is similar like https://www.pushtry.com/, but with functionality to save your projects, where you are sending notifications 
+and which user your are sending it to. 
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+You can use this tool just to test push notification feature in your app while your are developing it, or in a production app where you don't have a backend for the app and you want to manually send some 
+push notifications to specific users from time to time. For example asking for reviews or notifying them about some features.
 
-### `yarn test`
+This tool is dependent on Firebase Messaging, Firestore and Amplitude (https://amplitude.com/)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+To use this tool, you have to have some mechanism in your app to get the firebase device token. Because to send notification from this tool you have to provide the device token of the user.
 
-### `yarn build`
+## How to run this project?
+Create a firebase project and add a web app there. Get the firebase configs and add those in `src/configs.json` file
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+For now, I did not add firebase authentication. So you have to update the rule for firebase firestore to allow it without authentication. Go to firestore rule section and add this rule there.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+````
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write;
+    }
+  }
+}
+````
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+I know it is not good practice to make this public. But for now it will be like this. In future I will add proper authentication in this tool then we can change the rule  to be secure. 
+Or if you want to contribute implementing it now, feel free to make pull request. 
 
-### `yarn eject`
+For amplitude id, go to their site, create your account and add a javascript project there. Then you can get the amplitude id. Add it in the `configs.json` file.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+I added amplitude to see some analytics of the project. If you don't want to use it, you can remove the dependency and code that depends on it from the project.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+##Future development
+- Add support for sending notifications to iOS Apps
+- Add proper authentication to access this tool.  
+- Add feature to save message as template.
