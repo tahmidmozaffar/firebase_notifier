@@ -55,7 +55,7 @@ const History: FC<Props> = ({ notifications }) => {
           <TableHead>
             <TableRow>
               <TableCell
-                style={{ width: '30%' }}><TableCellHeader>Time</TableCellHeader>
+                style={{ width: '30%' }}><TableCellHeader>DateTime</TableCellHeader>
               </TableCell>
               <TableCell style={{ width: '30%' }}>
                 <TableCellHeader>User Id</TableCellHeader>
