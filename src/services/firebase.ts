@@ -35,9 +35,15 @@ export const signIn = async (accountName: string): Promise<{ success: boolean, m
   }
 };
 
-export const sendMessage = (serverKey: string | null,
-                            users: User[], pushObject:
-                              PushNotificationObject): Promise<void> => {
+type NotificationResponse = {
+  failure: number;
+}
+
+export const sendMessage = (
+  serverKey: string | null,
+  users: User[],
+  pushObject: PushNotificationObject,
+  callback: (response: NotificationResponse) => void) => {
 
   const deviceTokenArray: string[] = [];
   users.forEach((user) => {
@@ -72,11 +78,15 @@ export const sendMessage = (serverKey: string | null,
     });
   }
 
-  return axios.post('https://fcm.googleapis.com/fcm/send', notificationObject, {
+  axios.post('https://fcm.googleapis.com/fcm/send', notificationObject, {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `key=${serverKey}`,
     },
+  }).then((res) => {
+    callback({ failure: res.data.failure });
+  }).catch(() => {
+    callback({ failure: -1 });
   });
 
 };

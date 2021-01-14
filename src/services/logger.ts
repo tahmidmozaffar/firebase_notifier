@@ -23,7 +23,7 @@ export const Events = {
   Project_Deleted: 'project_deleted',
   Failed_Add_Project: 'failed_add_project',
   Project_Load_Failed: 'project_load_failed',
-  Notification_Sent: 'notification_sent',
+  All_Notification_Sent: 'all_notification_sent',
   Notification_Send_Failure: 'notification_send_failure',
   History_Add_Failure: 'history_add_failure',
   History_Load_Failed: 'history_load_failed',

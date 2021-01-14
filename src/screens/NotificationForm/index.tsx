@@ -146,43 +146,46 @@ const NotificationForm = () => {
       return;
     }
 
-    firebase.sendMessage(getLocalItem(Keys.serverKey), userArray, pushObject)
-      .then(() => {
-        logEvent(Events.Notification_Sent);
-
-        const newPush: PushNotification[] = [];
-        userArray.forEach((user) => {
-          const notification: PushNotification = {
-            id: uuidv4(),
-            datetime: new Date().getTime(),
-            userId: user.firebaseUid,
-            notification: pushObject,
-          };
-          addNotification(accountName, projectId, notification);
-          newPush.push(notification);
-        });
-
-        setUsers({
-          1: {
-            id: 1,
-            deviceToken: '',
-            firebaseUid: '',
-          },
-        });
-        setPushObject({
-          title: '',
-          message: '',
-          dataPartObject: {},
-        });
-        setDataCount(0);
-        setNotifications(newPush.concat(notifications));
-      })
-      .catch((err) => {
+    firebase.sendMessage(getLocalItem(Keys.serverKey), userArray, pushObject, ({ failure }) => {
+      if (failure > 0) {
         logEvent(Events.Notification_Send_Failure);
-        if (err) {
-          alert('Error sending push notifications');
-        }
+        const successCount = userArray.length - failure;
+        alert(`${successCount} out of ${userArray.length} notifications were sent successfully. Others were not sent due to invalid device token or server key.`);
+      } else if (failure === -1) {
+        alert('No notifications were sent. You have to use valid server key and device token.');
+        logEvent(Events.Notification_Send_Failure);
+      } else {
+        logEvent(Events.All_Notification_Sent);
+      }
+
+      const newPush: PushNotification[] = [];
+      userArray.forEach((user) => {
+        const notification: PushNotification = {
+          id: uuidv4(),
+          datetime: new Date().getTime(),
+          userId: user.firebaseUid,
+          notification: pushObject,
+        };
+        addNotification(accountName, projectId, notification);
+        newPush.push(notification);
       });
+
+      setUsers({
+        1: {
+          id: 1,
+          deviceToken: '',
+          firebaseUid: '',
+        },
+      });
+      setPushObject({
+        title: '',
+        message: '',
+        dataPartObject: {},
+      });
+      setDataCount(0);
+      setNotifications(newPush.concat(notifications));
+    });
+
   };
 
   useEffect(() => {
