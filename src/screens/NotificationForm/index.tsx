@@ -168,7 +168,7 @@ const NotificationForm = () => {
           </div>
         </LeftContainer>
         <div style={{ flex: 0.6 }}>
-          <History />
+          <History notifications={notifications}/>
         </div>
       </Container>
     </div>

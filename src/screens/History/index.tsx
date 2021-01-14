@@ -1,8 +1,5 @@
 import dayjs from 'dayjs';
-import React, { useEffect, useState } from 'react';
-import { useLocalStorage } from '../../services/hooks/useLocalStorage';
-import { Keys } from '../../services/hooks/Keys';
-import { useSessionStorage } from '../../services/hooks/useSessionStorage';
+import React, { FC, useEffect, useState } from 'react';
 import { PushNotification } from '../../services/types';
 import {
   NotificationsTitle,
@@ -21,11 +18,11 @@ import {
   Paper,
 } from '@material-ui/core';
 
-const History = () => {
-  const { getSessionItem } = useSessionStorage();
-  const { getLocalItem } = useLocalStorage();
-  const [projectId] = useState(() => getLocalItem(Keys.projectId));
-  const [notifications] = useState<PushNotification[]>(() => JSON.parse(getSessionItem(projectId)));
+type Props = {
+  notifications: PushNotification[];
+}
+
+const History: FC<Props> = ({ notifications }) => {
   const [filteredNotifications, setFilteredNotifications] = useState(notifications);
   const [searchText, setSearchText] = useState('');
 
@@ -43,7 +40,7 @@ const History = () => {
     });
 
     setFilteredNotifications(array);
-  }, [searchText]);
+  }, [searchText, notifications]);
 
   return (
     <Container>

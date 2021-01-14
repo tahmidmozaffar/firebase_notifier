@@ -10,6 +10,7 @@ export const logEvent = (eventName: string) => {
 };
 
 export const Events = {
+  App_Opened: 'App_Opened',
   Signup: 'signup',
   Signup_Failed: 'signup_failed',
   Login: 'login',

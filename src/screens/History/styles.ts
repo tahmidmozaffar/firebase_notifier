@@ -39,5 +39,5 @@ export const ClearButton = styled(Button).attrs({
   variant: 'contained',
   color: 'secondary',
 })`
-  margin-bottom: 20px;
+  padding-bottom: 20px;
 `;

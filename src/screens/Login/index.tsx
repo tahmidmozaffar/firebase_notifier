@@ -21,18 +21,20 @@ const Login = () => {
   const [loginVisible, setLoginVisible] = useState(true);
 
   const onBtnClicked = () => {
-    if (accountName.length === 0) {
+    const name = accountName.trim();
+
+    if (name.length === 0) {
       alert('Please enter account name');
       return;
     }
 
     if (!loginVisible) {
 
-      signUp(accountName).then(({ success, message }) => {
+      signUp(name).then(({ success, message }) => {
         if (success) {
           const result = confirm(message);
           if (result) {
-            setLocalItem(Keys.accountName, accountName);
+            setLocalItem(Keys.accountName, name);
             history.replace(Routes.home);
             logEvent(Events.Signup);
           }
@@ -47,9 +49,9 @@ const Login = () => {
 
     } else {
 
-      signIn(accountName).then(({ success, message }) => {
+      signIn(name).then(({ success, message }) => {
         if (success) {
-          setLocalItem(Keys.accountName, accountName);
+          setLocalItem(Keys.accountName, name);
           history.replace(Routes.home);
           logEvent(Events.Login);
         } else {
@@ -68,6 +70,7 @@ const Login = () => {
     if (accountName.length !== 0) {
       history.push(Routes.root);
     }
+    logEvent(Events.App_Opened);
   }, []);
 
   return (
