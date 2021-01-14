@@ -88,7 +88,7 @@ const Home = () => {
           <AddPorjectContainer>
             <InputBox label="Project name" value={projectName}
               onChange={(evt) => setProjectName(evt.target.value)}/>
-            <InputBox label="Server/API key"
+            <InputBox label="Server key"
               value={serverKey}
               onChange={(evt) => setServerKey(evt.target.value)}/>
             <SimpleButton name="Add Project" onClick={onClickAddProjectBtn}>

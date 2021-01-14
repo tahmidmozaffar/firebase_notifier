@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import React, { FC, useEffect, useState } from 'react';
-import { PushNotification } from '../../services/types';
+import { DataPart, PushNotification } from '../../services/types';
 import {
   NotificationsTitle,
   TableCellHeader,
@@ -23,6 +23,7 @@ type Props = {
 }
 
 const History: FC<Props> = ({ notifications }) => {
+
   const [filteredNotifications, setFilteredNotifications] = useState(notifications);
   const [searchText, setSearchText] = useState('');
 
@@ -30,13 +31,37 @@ const History: FC<Props> = ({ notifications }) => {
     setSearchText(searchBy);
   };
 
+  const isDatapartContainsSearchedText = (
+    dataPartObject: { [key: string]: DataPart },
+    searchedText: string,
+  ): boolean => {
+    let doesContain = false;
+    Object.values(dataPartObject).map((item) => {
+      if (item.key.toLowerCase().indexOf(searchedText) >= 0
+        || item.value.toLowerCase().indexOf(searchedText) >= 0) {
+        doesContain = true;
+      }
+    });
+
+    return doesContain;
+  };
+
   useEffect(() => {
     const array: PushNotification[] = [];
+    const text = searchText.toLowerCase();
     notifications.forEach((item) => {
-      if (item.userId.toLowerCase().indexOf(searchText.toLowerCase()) >= 0
-        || item.message.toLowerCase().indexOf(searchText.toLowerCase()) >= 0) {
+
+      // @ts-ignore
+      if ((item.message && item.message.toLowerCase()
+          .indexOf(text)) >= 0
+        || item.userId.toLowerCase().indexOf(text) >= 0
+        || (item.notification && (item.notification.title.toLowerCase()
+          .indexOf(text) >= 0 || item.notification.message.toLowerCase()
+          .indexOf(text) >= 0 || isDatapartContainsSearchedText(item.notification.dataPartObject, text)))
+      ) {
         array.push(item);
       }
+
     });
 
     setFilteredNotifications(array);
@@ -71,7 +96,26 @@ const History: FC<Props> = ({ notifications }) => {
                 <TableCell>{dayjs(row.datetime)
                   .format('MMM DD, YYYY h:mm a')}</TableCell>
                 <TableCell>{row.userId}</TableCell>
-                <TableCell>{row.message}</TableCell>
+                {
+                  row.message ? (
+                    <TableCell>{row.message}</TableCell>
+                  ) : (
+                    <TableCell>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span>{`Title: "${row.notification.title}"`}</span>
+                        <span>{`Message: "${row.notification.message}"`}</span>
+                        <span><u>Data:</u></span>
+                        {
+                          Object.values(row.notification.dataPartObject)
+                            .map((item) => <span key={item.id}>
+                              {`${item.key}: "${item.value}"`}
+                              </span>,
+                            )
+                        }
+                      </div>
+                    </TableCell>
+                  )
+                }
               </TableRow>
             ))}
           </TableBody>

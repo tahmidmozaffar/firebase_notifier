@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react';
+import {
+  UsersObject,
+  UserInfoFields,
+  DataPartFields,
+  PushNotificationObject,
+} from './types';
 import { Events, logEvent } from '../../services/logger';
 import History from '../History';
 import { HeaderBar } from '../../components/HeaderBar';
 import { Keys } from '../../services/hooks/Keys';
 import { addNotification, getNotifications } from '../../services/firebase';
 import { useLocalStorage } from '../../services/hooks/useLocalStorage';
-import { PushNotification, User } from '../../services/types';
+import { DataPart, PushNotification, User } from '../../services/types';
 import * as firebase from '../../services/firebase';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -15,13 +21,8 @@ import {
 } from '../../styles/commonStyles';
 import { TokenContainer, InputBox } from './styles';
 
-type UsersObject = {
-  [key: string]: User;
-}
-
 const NotificationForm = () => {
   const { getLocalItem } = useLocalStorage();
-  const [message, setMessage] = useState<string>('');
   const [accountName] = useState(() => getLocalItem(Keys.accountName));
   const [projectId] = useState(() => getLocalItem(Keys.projectId));
   const [notifications, setNotifications] = useState<PushNotification[]>([]);
@@ -33,27 +34,77 @@ const NotificationForm = () => {
     },
   });
   const [userCount, setUserCount] = useState<number>(1);
+  const [pushObject, setPushObject] = useState<PushNotificationObject>({
+    title: '',
+    message: '',
+    dataPartObject: {},
+  });
+  const [dataCount, setDataCount] = useState<number>(0);
 
-  const onChangeFirebaseUidField = (user: User) => (evt) => {
+  const onChangeUserInfoField = (user: User, fieldName: UserInfoFields) => (evt) => {
     const newUsers = {
       ...users,
     };
     newUsers[user.id] = {
       ...user,
-      firebaseUid: evt.target.value,
+      [fieldName]: evt.target.value,
     };
     setUsers(newUsers);
   };
 
-  const onChangeDeviceTokenField = (user: User) => (evt) => {
+  const onChangeTitleMessageFields = (fieldName: 'title' | 'message' | 'imageUrl') => (evt) => {
+    const newPushObject: PushNotificationObject = {
+      ...pushObject,
+      [fieldName]: evt.target.value,
+    };
+    setPushObject(newPushObject);
+  };
+
+  const onChangeDataPartFields = (dataPart: DataPart, fieldName: DataPartFields) => (evt) => {
+    const newPushObject: PushNotificationObject = {
+      ...pushObject,
+      dataPartObject: {
+        ...pushObject.dataPartObject,
+        [dataPart.id]: {
+          ...pushObject.dataPartObject[dataPart.id],
+          [fieldName]: evt.target.value,
+        },
+      },
+    };
+    setPushObject(newPushObject);
+  };
+
+  const onAddUserBtnClicked = () => {
+    const nextId = (userCount + 1);
     const newUsers = {
       ...users,
-    };
-    newUsers[user.id] = {
-      ...user,
-      deviceToken: evt.target.value,
+      [nextId]: {
+        id: nextId,
+        deviceToken: '',
+        firebaseUid: '',
+      },
     };
     setUsers(newUsers);
+    setUserCount(nextId);
+  };
+
+  const onAddDataBtnClicked = () => {
+    const nextId = (dataCount + 1);
+
+    const newPushObject: PushNotificationObject = {
+      ...pushObject,
+      dataPartObject: {
+        ...pushObject.dataPartObject,
+        [nextId]: {
+          id: nextId,
+          key: '',
+          value: '',
+        },
+      },
+    };
+
+    setPushObject(newPushObject);
+    setDataCount(nextId);
   };
 
   const onSendBtnClicked = () => {
@@ -72,12 +123,30 @@ const NotificationForm = () => {
       return;
     }
 
-    if (message.length === 0) {
-      alert('Enter a message');
+    const dataParts = Object.keys(pushObject.dataPartObject);
+
+    if (pushObject.title.length === 0 &&
+      pushObject.message.length === 0 &&
+      dataParts.length === 0) {
+      alert('You have to enter some text to send');
       return;
     }
 
-    firebase.sendMessage(getLocalItem(Keys.serverKey), userArray, message)
+    let dataInfoOk = true;
+    if (dataParts.length > 0) {
+      Object.values(pushObject.dataPartObject).map((item) => {
+        if (item.key.length === 0 || item.value.length === 0) {
+          dataInfoOk = false;
+        }
+      });
+    }
+
+    if (!dataInfoOk) {
+      alert('You have to enter text for all key-value pair');
+      return;
+    }
+
+    firebase.sendMessage(getLocalItem(Keys.serverKey), userArray, pushObject)
       .then(() => {
         logEvent(Events.Notification_Sent);
 
@@ -87,7 +156,7 @@ const NotificationForm = () => {
             id: uuidv4(),
             datetime: new Date().getTime(),
             userId: user.firebaseUid,
-            message,
+            notification: pushObject,
           };
           addNotification(accountName, projectId, notification);
           newPush.push(notification);
@@ -100,7 +169,12 @@ const NotificationForm = () => {
             firebaseUid: '',
           },
         });
-        setMessage('');
+        setPushObject({
+          title: '',
+          message: '',
+          dataPartObject: {},
+        });
+        setDataCount(0);
         setNotifications(newPush.concat(notifications));
       })
       .catch((err) => {
@@ -135,33 +209,43 @@ const NotificationForm = () => {
               return <TokenContainer key={user.id} style={{ display: 'flex' }}>
                 <InputBox
                   label="User Id" value={user.firebaseUid}
-                  onChange={onChangeFirebaseUidField(user)}
+                  onChange={onChangeUserInfoField(user, 'firebaseUid')}
                   style={{ flex: 1, minWidth: 150, marginRight: 20 }}/>
                 <InputBox
                   label="Device Token"
                   value={user.deviceToken}
-                  onChange={onChangeDeviceTokenField(user)}
+                  onChange={onChangeUserInfoField(user, 'deviceToken')}
                   style={{ flex: 1, minWidth: 150 }}/>
               </TokenContainer>;
             })
           }
-          <SimpleButton onClick={() => {
-            const nextId = (userCount + 1);
-            const newUsers = {
-              ...users,
-            };
-            newUsers[nextId] = {
-              id: nextId,
-              deviceToken: '',
-              firebaseUid: '',
-            };
-            setUsers(newUsers);
-            setUserCount(nextId);
-          }}>Add user
-          </SimpleButton>
+          <SimpleButton onClick={onAddUserBtnClicked}>Add user</SimpleButton>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <InputBox style={{ marginTop: 100 }} label="Message" value={message}
-              onChange={(evt) => setMessage(evt.target.value)}/>
+            <InputBox style={{ marginTop: 100 }} label="Title"
+              value={pushObject.title}
+              onChange={onChangeTitleMessageFields('title')}/>
+            <InputBox label="Message" value={pushObject.message}
+              onChange={onChangeTitleMessageFields('message')}/>
+            <InputBox label="Image URL example: https://yourapp.com/image.png"
+              value={pushObject.imageUrl ?? ''}
+              onChange={onChangeTitleMessageFields('imageUrl')}/>
+            {
+              Object.values(pushObject.dataPartObject).map((currData) => {
+                return <div key={currData.id}
+                  style={{ display: 'flex', flexDirection: 'row' }}>
+                  <InputBox style={{ marginRight: 20 }} label="Key"
+                    value={currData.key}
+                    onChange={onChangeDataPartFields(currData, 'key')}/>
+                  <InputBox label="Value" value={currData.value}
+                    onChange={onChangeDataPartFields(currData, 'value')}/>
+                </div>;
+              })
+            }
+
+            <SimpleButton style={{ marginBottom: 100 }}
+              onClick={onAddDataBtnClicked}>
+              Add Data
+            </SimpleButton>
             <SimpleButton onClick={onSendBtnClicked}>
               Send
             </SimpleButton>

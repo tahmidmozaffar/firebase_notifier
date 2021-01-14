@@ -1,4 +1,4 @@
-import { orange, blue, brown } from '@material-ui/core/colors';
+import { orange, blue, lime, brown } from '@material-ui/core/colors';
 import { createMuiTheme } from '@material-ui/core/styles';
 
 export const theme = createMuiTheme({

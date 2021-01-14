@@ -21,9 +21,11 @@ var firebaseConfig = {
 };
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-firebase.analytics();
 
-loggerInit();
+if(process.env.NODE_ENV !== 'development'){
+  firebase.analytics();
+  loggerInit();
+}
 
 ReactDOM.render(
   <React.StrictMode>

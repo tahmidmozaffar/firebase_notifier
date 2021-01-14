@@ -2,11 +2,15 @@ import amplitude from 'amplitude-js';
 import * as configs from '../configs.json';
 
 export const loggerInit = () => {
-  amplitude.getInstance().init(configs.amplitudeId);
+  if (process.env.NODE_ENV !== 'development') {
+    amplitude.getInstance().init(configs.amplitudeId);
+  }
 };
 
 export const logEvent = (eventName: string) => {
-  amplitude.getInstance().logEvent(eventName);
+  if (process.env.NODE_ENV !== 'development') {
+    amplitude.getInstance().logEvent(eventName);
+  }
 };
 
 export const Events = {
