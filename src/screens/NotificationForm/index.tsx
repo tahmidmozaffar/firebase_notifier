@@ -148,9 +148,13 @@ const NotificationForm = () => {
 
     firebase.sendMessage(getLocalItem(Keys.serverKey), userArray, pushObject, ({ failure }) => {
       if (failure > 0) {
-        logEvent(Events.Notification_Send_Failure);
         const successCount = userArray.length - failure;
         alert(`${successCount} out of ${userArray.length} notifications were sent successfully. Others were not sent due to invalid device token or server key.`);
+        if (successCount === 0) {
+          logEvent(Events.Notification_Send_Failure);
+        } else {
+          logEvent(Events.Some_Notification_Not_Sent);
+        }
       } else if (failure === -1) {
         alert('No notifications were sent. You have to use valid server key and device token.');
         logEvent(Events.Notification_Send_Failure);
