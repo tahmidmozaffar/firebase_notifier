@@ -26,6 +26,7 @@ export const Events = {
   All_Notification_Sent: 'all_notification_sent',
   Some_Notification_Not_Sent: 'some_notifications_not_sent',
   Notification_Send_Failure: 'notification_send_failure',
+  Notification_Send_Failure_topic: 'notification_send_failure_to_topic',
   History_Add_Failure: 'history_add_failure',
   History_Load_Failed: 'history_load_failed',
 };

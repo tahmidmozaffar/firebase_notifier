@@ -83,7 +83,7 @@ const History: FC<Props> = ({ notifications }) => {
                 style={{ width: '30%' }}><TableCellHeader>DateTime</TableCellHeader>
               </TableCell>
               <TableCell style={{ width: '30%' }}>
-                <TableCellHeader>User Id</TableCellHeader>
+                <TableCellHeader>User Id / Topic</TableCellHeader>
               </TableCell>
               <TableCell style={{ width: '40%' }}>
                 <TableCellHeader>Message</TableCellHeader>

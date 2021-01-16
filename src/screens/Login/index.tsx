@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { Events, logEvent } from '../../services/logger';
-import { signIn, signUp } from '../../services/firebase';
+import { signIn, signUp } from '../../services/firebase/authentication';
 import { Keys } from '../../services/hooks/Keys';
 import { Routes } from '../../routes';
 import { useLocalStorage } from '../../services/hooks/useLocalStorage';

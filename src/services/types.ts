@@ -27,7 +27,8 @@ export type DataPart = {
 }
 
 export type NotificationObject = {
-  registration_ids: string[],
+  registration_ids?: string[],
+  to?: string,
   notification?: {
     title: string,
     body: string,

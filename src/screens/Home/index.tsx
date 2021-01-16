@@ -8,7 +8,7 @@ import {
   addProject,
   getProjects,
   deleteProject,
-} from '../../services/firebase';
+} from '../../services/firebase/projectRepository';
 import { Project } from '../../services/types';
 import { Routes } from '../../routes';
 import { useLocalStorage } from '../../services/hooks/useLocalStorage';

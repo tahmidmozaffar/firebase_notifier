@@ -1,4 +1,9 @@
+import { FormControlLabel, Switch } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
+import {
+  sendMessage,
+  sendMessageToTopic,
+} from '../../services/firebase/messaging';
 import {
   UsersObject,
   UserInfoFields,
@@ -9,10 +14,12 @@ import { Events, logEvent } from '../../services/logger';
 import History from '../History';
 import { HeaderBar } from '../../components/HeaderBar';
 import { Keys } from '../../services/hooks/Keys';
-import { addNotification, getNotifications } from '../../services/firebase';
+import {
+  addNotification,
+  getNotifications,
+} from '../../services/firebase/notificationRepository';
 import { useLocalStorage } from '../../services/hooks/useLocalStorage';
 import { DataPart, PushNotification, User } from '../../services/types';
-import * as firebase from '../../services/firebase';
 import { v4 as uuidv4 } from 'uuid';
 import {
   Container,
@@ -25,7 +32,9 @@ const NotificationForm = () => {
   const { getLocalItem } = useLocalStorage();
   const [accountName] = useState(() => getLocalItem(Keys.accountName));
   const [projectId] = useState(() => getLocalItem(Keys.projectId));
+  const [topicEnabled, setTopicEnabled] = useState(false);
   const [notifications, setNotifications] = useState<PushNotification[]>([]);
+  const [topic, setTopic] = useState('');
   const [users, setUsers] = useState<UsersObject>({
     1: {
       id: 1,
@@ -109,18 +118,26 @@ const NotificationForm = () => {
 
   const onSendBtnClicked = () => {
 
-    let userInfoOk = true;
     const userArray: User[] = [];
-    Object.values(users).map((user) => {
-      userArray.push(user);
-      if (user.firebaseUid.length === 0 || user.deviceToken.length === 0) {
-        userInfoOk = false;
-      }
-    });
 
-    if (!userInfoOk) {
-      alert('Enter user id and device tokens for all users');
-      return;
+    if (topicEnabled) {
+      if (topic.length === 0) {
+        alert('Enter a topic');
+        return;
+      }
+    } else {
+      let userInfoOk = true;
+      Object.values(users).map((user) => {
+        userArray.push(user);
+        if (user.firebaseUid.length === 0 || user.deviceToken.length === 0) {
+          userInfoOk = false;
+        }
+      });
+
+      if (!userInfoOk) {
+        alert('Enter user id and device tokens for all users');
+        return;
+      }
     }
 
     const dataParts = Object.keys(pushObject.dataPartObject);
@@ -146,50 +163,81 @@ const NotificationForm = () => {
       return;
     }
 
-    firebase.sendMessage(getLocalItem(Keys.serverKey), userArray, pushObject, ({ failure }) => {
-      if (failure > 0) {
-        const successCount = userArray.length - failure;
-        alert(`${successCount} out of ${userArray.length} notifications were sent successfully. Others were not sent due to invalid device token or server key.`);
-        if (successCount === 0) {
+    if (!topicEnabled) {
+      sendMessage(getLocalItem(Keys.serverKey), userArray, pushObject, ({ failure }) => {
+        if (failure > 0) {
+          const successCount = userArray.length - failure;
+          alert(`${successCount} out of ${userArray.length} notifications were sent successfully. Others were not sent due to invalid device token or server key.`);
+          if (successCount === 0) {
+            logEvent(Events.Notification_Send_Failure);
+          } else {
+            logEvent(Events.Some_Notification_Not_Sent);
+          }
+        } else if (failure === -1) {
+          alert('No notifications were sent. You have to use valid server key and device token.');
           logEvent(Events.Notification_Send_Failure);
         } else {
-          logEvent(Events.Some_Notification_Not_Sent);
+          logEvent(Events.All_Notification_Sent);
         }
-      } else if (failure === -1) {
-        alert('No notifications were sent. You have to use valid server key and device token.');
-        logEvent(Events.Notification_Send_Failure);
-      } else {
-        logEvent(Events.All_Notification_Sent);
-      }
 
-      const newPush: PushNotification[] = [];
-      userArray.forEach((user) => {
+        const newPush: PushNotification[] = [];
+        userArray.forEach((user) => {
+          const notification: PushNotification = {
+            id: uuidv4(),
+            datetime: new Date().getTime(),
+            userId: user.firebaseUid,
+            notification: pushObject,
+          };
+          addNotification(accountName, projectId, notification);
+          newPush.push(notification);
+        });
+
+        setNotifications(newPush.concat(notifications));
+        resetFields();
+      });
+    } else {
+      sendMessageToTopic(getLocalItem(Keys.serverKey), topic, pushObject, ({ failure }) => {
+
+        if (failure > 0) {
+          alert('Notifications were sent to the topic.');
+          logEvent(Events.Notification_Send_Failure_topic);
+        } else if (failure === -1) {
+          alert('No notifications were sent. You have to use valid server key and device token.');
+          logEvent(Events.Notification_Send_Failure);
+        } else {
+          logEvent(Events.All_Notification_Sent);
+        }
+
+        const newPush: PushNotification[] = [];
         const notification: PushNotification = {
           id: uuidv4(),
           datetime: new Date().getTime(),
-          userId: user.firebaseUid,
+          userId: topic,
           notification: pushObject,
         };
         addNotification(accountName, projectId, notification);
         newPush.push(notification);
+        setNotifications(newPush.concat(notifications));
+        resetFields();
       });
+    }
+  };
 
-      setUsers({
-        1: {
-          id: 1,
-          deviceToken: '',
-          firebaseUid: '',
-        },
-      });
-      setPushObject({
-        title: '',
-        message: '',
-        dataPartObject: {},
-      });
-      setDataCount(0);
-      setNotifications(newPush.concat(notifications));
+  const resetFields = () => {
+    setUsers({
+      1: {
+        id: 1,
+        deviceToken: '',
+        firebaseUid: '',
+      },
     });
-
+    setTopic('');
+    setPushObject({
+      title: '',
+      message: '',
+      dataPartObject: {},
+    });
+    setDataCount(0);
   };
 
   useEffect(() => {
@@ -211,22 +259,45 @@ const NotificationForm = () => {
       <HeaderBar/>
       <Container>
         <LeftContainer>
+          <FormControlLabel
+            control={<Switch
+              checked={topicEnabled}
+              onChange={() => setTopicEnabled(!topicEnabled)}
+              name="toggleRecipient"
+              inputProps={{ 'aria-label': 'secondary checkbox' }}
+            />}
+            label="Topic"
+          />
           {
-            Object.values(users).map((user) => {
-              return <TokenContainer key={user.id} style={{ display: 'flex' }}>
-                <InputBox
-                  label="User Id" value={user.firebaseUid}
-                  onChange={onChangeUserInfoField(user, 'firebaseUid')}
-                  style={{ flex: 1, minWidth: 150, marginRight: 20 }}/>
-                <InputBox
-                  label="Device Token"
-                  value={user.deviceToken}
-                  onChange={onChangeUserInfoField(user, 'deviceToken')}
-                  style={{ flex: 1, minWidth: 150 }}/>
-              </TokenContainer>;
-            })
+            topicEnabled ? (
+              <InputBox style={{
+                marginTop: 20,
+              }} label="Topic"
+                value={topic}
+                onChange={(evt) => setTopic(evt.target.value)}/>
+            ) : (
+              <div style={{ marginTop: 20 }}>
+                {
+                  Object.values(users).map((user) => {
+                    return <TokenContainer key={user.id}
+                      style={{ display: 'flex' }}>
+                      <InputBox
+                        label="User Id" value={user.firebaseUid}
+                        onChange={onChangeUserInfoField(user, 'firebaseUid')}
+                        style={{ flex: 1, minWidth: 150, marginRight: 20 }}/>
+                      <InputBox
+                        label="Device Token"
+                        value={user.deviceToken}
+                        onChange={onChangeUserInfoField(user, 'deviceToken')}
+                        style={{ flex: 1, minWidth: 150 }}/>
+                    </TokenContainer>;
+                  })
+                }
+                <SimpleButton onClick={onAddUserBtnClicked}>Add
+                  user</SimpleButton>
+              </div>
+            )
           }
-          <SimpleButton onClick={onAddUserBtnClicked}>Add user</SimpleButton>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <InputBox style={{ marginTop: 100 }} label="Title"
               value={pushObject.title}
