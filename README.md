@@ -52,9 +52,9 @@ I added amplitude to see some analytics of the project. If you don't want to use
 
 Here is how it looks.
 
-![add_project](https://raw.githubusercontent.com/tahmidmozaffar/firebase_notifier/master/1.png)
+![add_project](https://raw.githubusercontent.com/tahmidmozaffar/firebase_notifier/master/screenshots/1.png)
 
-![send_notifications](https://raw.githubusercontent.com/tahmidmozaffar/firebase_notifier/master/2.png)
+![send_notifications](https://raw.githubusercontent.com/tahmidmozaffar/firebase_notifier/master/screenshots/2.png)
 
 
 ## License
