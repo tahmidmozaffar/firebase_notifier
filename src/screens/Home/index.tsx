@@ -1,4 +1,3 @@
-import DeleteIcon from '@material-ui/icons/Delete';
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { Events, logEvent } from '../../services/logger';
@@ -23,6 +22,7 @@ import {
   ProjectTitle,
   ProjectsContainer,
   InputBox,
+  ProjectDeleteIcon,
 } from './styles';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -117,25 +117,26 @@ const Home = () => {
                 }}>
                   {project.projectName}
                 </ProjectItem>
-                <DeleteIcon style={{ alignSelf: 'center' }} onClick={() => {
-                  const result = confirm('Are you sure to delete this project?');
-                  if (result) {
-                    const index = projects.findIndex(p => p.id === project.id);
-                    const start = projects.slice(0, index);
-                    const end = projects.slice(index + 1, projects.length);
-                    const modifiedProjectList = start.concat(end);
+                <ProjectDeleteIcon
+                  onClick={() => {
+                    const result = confirm('Are you sure to delete this project?');
+                    if (result) {
+                      const index = projects.findIndex(p => p.id === project.id);
+                      const start = projects.slice(0, index);
+                      const end = projects.slice(index + 1, projects.length);
+                      const modifiedProjectList = start.concat(end);
 
-                    deleteProject(accountName, project.id, modifiedProjectList, (err) => {
-                      if (err) {
-                        alert('Something went wrong. Could not delete the project.');
-                        return;
-                      }
+                      deleteProject(accountName, project.id, modifiedProjectList, (err) => {
+                        if (err) {
+                          alert('Something went wrong. Could not delete the project.');
+                          return;
+                        }
 
-                      logEvent(Events.Project_Deleted);
-                      setProjects(modifiedProjectList);
-                    });
-                  }
-                }}/>
+                        logEvent(Events.Project_Deleted);
+                        setProjects(modifiedProjectList);
+                      });
+                    }
+                  }}/>
               </div>
             ))
           }

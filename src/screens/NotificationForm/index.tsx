@@ -1,5 +1,6 @@
 import { FormControlLabel, Switch } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
+import { paletteColors } from '../../styles/palette';
 import {
   sendMessage,
   sendMessageToTopic,
@@ -267,6 +268,7 @@ const NotificationForm = () => {
               inputProps={{ 'aria-label': 'secondary checkbox' }}
             />}
             label="Topic"
+            style={{ color: paletteColors.textPrimary }}
           />
           {
             topicEnabled ? (

@@ -1,20 +1,18 @@
-import { orange, blue, lime, brown } from '@material-ui/core/colors';
 import { createMuiTheme } from '@material-ui/core/styles';
+import { paletteColors } from '../styles/palette';
 
 export const theme = createMuiTheme({
   palette: {
     primary: {
-      main: blue[500],
+      main: paletteColors.primaryMain,
     },
     secondary: {
-      main: orange[500],
-    },
-    background: {
-      default: brown[500]
+      main: paletteColors.secondaryMain,
     },
     text: {
-      primary: "#000000",
-      secondary: "#919191"
-    }
+      primary: paletteColors.textPrimary,
+      secondary: paletteColors.primaryMain,
+    },
+    type: 'dark',
   },
 });

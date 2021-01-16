@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AppBar } from '@material-ui/core';
 import { useHistory } from 'react-router';
+import { paletteColors } from '../../styles/palette';
 import { Keys } from '../../services/hooks/Keys';
 import { Routes } from '../../routes';
 import { useLocalStorage } from '../../services/hooks/useLocalStorage';
@@ -24,7 +25,8 @@ export const HeaderBar = () => {
   };
 
   return (
-    <AppBar position="static" style={{ flexDirection: 'row-reverse' }}>
+    <AppBar position="static"
+      style={{ flexDirection: 'row-reverse', backgroundColor: paletteColors.deepDarkBlue }}>
       <LogoutButton onClick={onClickLogout}>Log out</LogoutButton>
       <AccountNameText>Account Name: {accountName}</AccountNameText>
       {

@@ -1,3 +1,4 @@
+import { paletteColors } from '../../styles/palette';
 import { Input } from '../../styles/commonStyles';
 import styled from 'styled-components';
 
@@ -23,6 +24,7 @@ export const Title = styled.span`
   font-size: 30px;
   padding: 40px;
   margin-bottom: 30px;
+  color: ${paletteColors.textPrimary};
 `;
 
 export const ButtonContainer = styled.div`
@@ -34,4 +36,5 @@ export const ButtonContainer = styled.div`
 export const TextButton = styled.span`
   font-size: 14px;
   cursor: pointer;
+  color: ${paletteColors.textPrimary};
 `;

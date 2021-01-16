@@ -1,11 +1,19 @@
+import { AppBar } from '@material-ui/core';
+import { paletteColors } from '../../styles/palette';
 import { SimpleButton } from '../../styles/commonStyles';
 import styled from 'styled-components';
+
+export const MainAppBar = styled(AppBar)`
+  flex-direction: row-reverse;
+  background-color: ${paletteColors.deepDarkBlue};
+`;
 
 export const AccountNameText = styled.span`
   font-size: 20px;
   align-self: center;
   margin-right: 30px;
   font-weight: bold;
+  color: ${paletteColors.textPrimary};
 
   @media (max-width: 768px) {
     margin-right: 15px;
@@ -24,6 +32,7 @@ export const ProjectNameText = styled.span`
   align-self: center;
   margin-left: 60px;
   font-weight: bold;
+  color: ${paletteColors.textPrimary};
 
   @media (max-width: 768px) {
     margin-left: 30px;
@@ -45,6 +54,7 @@ export const LogoutButton = styled(SimpleButton)`
     cursor: pointer;
     width: 100px;
     margin-right: 60px;
+    color: ${paletteColors.textPrimary};
 
     @media (max-width: 768px) {
       margin-right: 30px;

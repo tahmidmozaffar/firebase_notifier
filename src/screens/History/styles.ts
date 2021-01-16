@@ -1,4 +1,5 @@
 import { Button } from '@material-ui/core';
+import { paletteColors } from '../../styles/palette';
 import { Input } from '../../styles/commonStyles';
 import styled from 'styled-components';
 
@@ -14,6 +15,7 @@ export const NotificationsTitle = styled.h5`
   margin-block-start: 0;
   margin-block-end: 0;
   margin-bottom: 30px;
+  color: ${paletteColors.textPrimary};
 `;
 
 export const TableCellHeader = styled.h4`
@@ -40,4 +42,5 @@ export const ClearButton = styled(Button).attrs({
   color: 'secondary',
 })`
   margin-bottom: 20px;
+  height: 55px;
 `;
