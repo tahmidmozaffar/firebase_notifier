@@ -8,24 +8,6 @@ export const MainAppBar = styled(AppBar)`
   background-color: ${paletteColors.deepDarkBlue};
 `;
 
-export const AccountNameText = styled.span`
-  font-size: 20px;
-  align-self: center;
-  margin-right: 30px;
-  font-weight: bold;
-  color: ${paletteColors.textPrimary};
-
-  @media (max-width: 768px) {
-    margin-right: 15px;
-    font-size: 14px;
-  }
-
-  @media (max-width: 440px) {
-    margin-right: 5px;
-    font-size: 14px;
-  }
-`;
-
 export const ProjectNameText = styled.span`
   flex: 1;
   font-size: 20px;

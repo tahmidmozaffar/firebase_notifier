@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
+import GoogleLoginButton from '../../components/GoogleLoginButton';
 import { Events, logEvent } from '../../services/logger';
-import { signIn, signUp } from '../../services/firebase/authentication';
+import {
+  signInWithEmailPassword, signInWithGoogle,
+  signUpWithEmailPassword,
+} from '../../services/firebase/authentication';
 import { Keys } from '../../services/hooks/Keys';
 import { Routes } from '../../routes';
 import { useLocalStorage } from '../../services/hooks/useLocalStorage';
@@ -10,75 +14,83 @@ import {
   Container,
   TextButton,
   Title,
-  InputBox
+  InputBox,
 } from './styles';
 import { SimpleButton } from '../../styles/commonStyles';
 
 const Login = () => {
   const { setLocalItem, getLocalItem } = useLocalStorage();
+  const [userId] = useState(() => getLocalItem(Keys.userId));
   const history = useHistory();
-  const [accountName, setAccountName] = useState(() => getLocalItem(Keys.accountName, ''));
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loginVisible, setLoginVisible] = useState(true);
 
   const onBtnClicked = () => {
-    const name = accountName.trim();
 
-    if (name.length === 0) {
-      alert('Please enter account name');
+    if (email.length === 0 || password.length === 0) {
+      alert('Please enter email and password');
       return;
     }
 
     if (!loginVisible) {
-
-      signUp(name).then(({ success, message }) => {
-        if (success) {
-          const result = confirm(message);
-          if (result) {
-            setLocalItem(Keys.accountName, name);
-            history.replace(Routes.home);
-            logEvent(Events.Signup);
-          }
+      signUpWithEmailPassword(email, password, (userId, error) => {
+        if (userId) {
+          setLocalItem(Keys.userId, userId);
+          history.replace(Routes.home);
+          logEvent(Events.Signup);
         } else {
-          alert(message);
+          alert(error);
+          console.log(error);
           logEvent(Events.Signup_Failed);
         }
-      }).catch(() => {
-        logEvent(Events.Signup_Failed);
-        alert('Something went wrong. We could not create the account.');
       });
 
     } else {
-
-      signIn(name).then(({ success, message }) => {
-        if (success) {
-          setLocalItem(Keys.accountName, name);
+      signInWithEmailPassword(email, password, (userId, error) => {
+        if (userId) {
+          setLocalItem(Keys.userId, userId);
           history.replace(Routes.home);
           logEvent(Events.Login);
         } else {
-          alert(message);
+          alert(error);
           logEvent(Events.Login_Failed);
+          console.log('error', error);
         }
-      }).catch(() => {
-        logEvent(Events.Login_Failed);
-        alert('Something went wrong. Please try again later');
       });
-
     }
   };
 
+  const onGoogleLoginBtnClicked = () => {
+    signInWithGoogle((userId, error) => {
+      if (userId) {
+        setLocalItem(Keys.userId, userId);
+        history.replace(Routes.home);
+        logEvent(Events.Login);
+      } else {
+        alert(error);
+        logEvent(Events.Login_Failed);
+        console.log('error', error);
+      }
+    });
+  };
+
   useEffect(() => {
-    if (accountName.length !== 0) {
+    logEvent(Events.Login_Page);
+    if (userId.length !== 0) {
       history.push(Routes.root);
     }
-    logEvent(Events.App_Opened);
   }, []);
 
   return (
     <Container>
       <Title>Firebase Notifier</Title>
       <InputBox
-        label="Account Name" value={accountName}
-        onChange={(evt) => setAccountName(evt.target.value)} />
+        label="Email" value={email}
+        onChange={(evt) => setEmail(evt.target.value)}/>
+      <InputBox
+        label="Password" value={password} type='password'
+        onChange={(evt) => setPassword(evt.target.value)}/>
       {
         loginVisible ? (
           <ButtonContainer>
@@ -100,9 +112,8 @@ const Login = () => {
           </ButtonContainer>
         )
       }
-
+      <GoogleLoginButton onClick={onGoogleLoginBtnClicked} marginTop={30}/>
     </Container>
-
   );
 };
 

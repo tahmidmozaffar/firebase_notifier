@@ -6,9 +6,9 @@ import Login from '../Login';
 
 const Root: FC = () => {
   const { getLocalItem } = useLocalStorage();
-  const [accountName] = useState(() => getLocalItem(Keys.accountName, ''));
+  const [userId] = useState(() => getLocalItem(Keys.userId, ''));
 
-  if (accountName.length === 0) {
+  if (userId.length === 0) {
     return <Login/>;
   } else {
     return <Home/>;

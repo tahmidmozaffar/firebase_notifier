@@ -1,5 +1,5 @@
 export const Keys = {
-  accountName: 'accountName',
+  userId: 'userId',
   serverKey: 'serverKey',
   projectName: 'projectName',
   projectId: 'projectId',

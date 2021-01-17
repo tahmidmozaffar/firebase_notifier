@@ -1,5 +1,7 @@
 import { FormControlLabel, Switch } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router';
+import { Routes } from '../../routes';
 import { paletteColors } from '../../styles/palette';
 import {
   sendMessage,
@@ -30,8 +32,9 @@ import {
 import { TokenContainer, InputBox } from './styles';
 
 const NotificationForm = () => {
+  const history = useHistory();
   const { getLocalItem } = useLocalStorage();
-  const [accountName] = useState(() => getLocalItem(Keys.accountName));
+  const [userId] = useState(() => getLocalItem(Keys.userId));
   const [projectId] = useState(() => getLocalItem(Keys.projectId));
   const [topicEnabled, setTopicEnabled] = useState(false);
   const [notifications, setNotifications] = useState<PushNotification[]>([]);
@@ -189,7 +192,7 @@ const NotificationForm = () => {
             userId: user.firebaseUid,
             notification: pushObject,
           };
-          addNotification(accountName, projectId, notification);
+          addNotification(userId, projectId, notification);
           newPush.push(notification);
         });
 
@@ -216,7 +219,7 @@ const NotificationForm = () => {
           userId: topic,
           notification: pushObject,
         };
-        addNotification(accountName, projectId, notification);
+        addNotification(userId, projectId, notification);
         newPush.push(notification);
         setNotifications(newPush.concat(notifications));
         resetFields();
@@ -242,7 +245,13 @@ const NotificationForm = () => {
   };
 
   useEffect(() => {
-    getNotifications(accountName, projectId, (notifications, err) => {
+    if (!projectId) {
+      alert('Please first create a project and select it');
+      history.replace(Routes.home);
+      return;
+    }
+
+    getNotifications(userId, projectId, (notifications, err) => {
       if (err) {
         logEvent(Events.History_Load_Failed);
         alert('Something went wrong. We could not load the history.');

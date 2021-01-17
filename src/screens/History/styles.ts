@@ -30,7 +30,6 @@ export const InputBox = styled(Input)`
     width: 100%;
 
     @media (max-width: 768px) {
-      margin-right: 0;
       margin-bottom: 20px;
     }
   }

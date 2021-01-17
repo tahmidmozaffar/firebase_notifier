@@ -31,7 +31,7 @@ const Home = () => {
   const { setLocalItem, getLocalItem } = useLocalStorage();
   const [projectName, setProjectName] = useState('');
   const [serverKey, setServerKey] = useState('');
-  const [accountName] = useState(() => getLocalItem(Keys.accountName));
+  const [userId] = useState(() => getLocalItem(Keys.userId));
   const [projects, setProjects] = useState<Project[]>([]);
 
   const onClickAddProjectBtn = () => {
@@ -46,10 +46,10 @@ const Home = () => {
       serverKey,
     };
 
-    if (accountName.length === 0) {
+    if (userId.length === 0) {
       alert('Something went wrong. Please logout and login again.');
     } else {
-      addProject(accountName, project, err => {
+      addProject(userId, project, err => {
         if (err) {
           logEvent(Events.Failed_Add_Project);
           alert('Something went wrong. please try again later.');
@@ -65,7 +65,7 @@ const Home = () => {
   };
 
   useEffect(() => {
-    getProjects(accountName, (projects, err) => {
+    getProjects(userId, (projects, err) => {
       if (err) {
         alert('Something went wrong. We could not load your projects.');
         logEvent(Events.Project_Load_Failed);
@@ -126,7 +126,7 @@ const Home = () => {
                       const end = projects.slice(index + 1, projects.length);
                       const modifiedProjectList = start.concat(end);
 
-                      deleteProject(accountName, project.id, modifiedProjectList, (err) => {
+                      deleteProject(userId, project.id, modifiedProjectList, (err) => {
                         if (err) {
                           alert('Something went wrong. Could not delete the project.');
                           return;

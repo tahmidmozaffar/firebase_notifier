@@ -1,9 +1,10 @@
-import firebase from 'firebase';
+import firebase from 'firebase/app';
+import 'firebase/firestore';
 import { Keys } from '../../services/hooks/Keys';
 import { useSessionStorage } from '../../services/hooks/useSessionStorage';
 import { Project } from '../../services/types';
 
-export const addProject = (accountName: string, project: Project, callback: (err?: Error) => void) => {
+export const addProject = (userId: string, project: Project, callback: (err?: Error) => void) => {
 
   const { getSessionItem, setSessionItem } = useSessionStorage();
   const projects = JSON.parse(getSessionItem(Keys.allProjects));
@@ -11,7 +12,7 @@ export const addProject = (accountName: string, project: Project, callback: (err
   setSessionItem(Keys.allProjects, JSON.stringify(modifiedProjectList));
 
   const db = firebase.firestore();
-  db.collection(accountName).doc('projects')
+  db.collection(userId).doc('projects')
     .set({ projectsArray: modifiedProjectList }).then(() => {
     callback();
   }).catch((err) => {
@@ -19,14 +20,14 @@ export const addProject = (accountName: string, project: Project, callback: (err
   });
 };
 
-export const deleteProject = (accountName: string, projectId: string, modifiedProjects: Project[], callback: (err?: Error) => void) => {
+export const deleteProject = (userId: string, projectId: string, modifiedProjects: Project[], callback: (err?: Error) => void) => {
 
   const { setSessionItem } = useSessionStorage();
 
   const db = firebase.firestore();
-  db.collection(accountName).doc('projects')
+  db.collection(userId).doc('projects')
     .set({ projectsArray: modifiedProjects }).then(() => {
-    db.collection(accountName).doc(projectId).delete().then(() => {
+    db.collection(userId).doc(projectId).delete().then(() => {
       callback();
       setSessionItem(Keys.allProjects, JSON.stringify(modifiedProjects));
     }).catch((err) => {
@@ -38,7 +39,7 @@ export const deleteProject = (accountName: string, projectId: string, modifiedPr
 
 };
 
-export const getProjects = (accountName: string, callback: (projects: Project[], err?: Error) => void) => {
+export const getProjects = (userId: string, callback: (projects: Project[], err?: Error) => void) => {
 
   const { setSessionItem, getSessionItem } = useSessionStorage();
   const allProjects = getSessionItem(Keys.allProjects);
@@ -51,7 +52,7 @@ export const getProjects = (accountName: string, callback: (projects: Project[],
   }
 
   const db = firebase.firestore();
-  db.collection(accountName).doc('projects').get()
+  db.collection(userId).doc('projects').get()
     .then((doc) => {
 
       const projects = doc.data()?.['projectsArray'] ?? [];

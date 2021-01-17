@@ -1,29 +1,50 @@
-import firebase from 'firebase';
+import firebase from 'firebase/app';
+import 'firebase/auth';
 
-export const signUp = async (accountName: string): Promise<{ success: boolean, message?: string }> => {
-  const db = firebase.firestore();
-  const documentData = await db.collection(accountName).doc('projects').get();
-  if (documentData.exists) {
-    return {
-      success: false,
-      message: 'Account name is not available. Please choose a different account name.',
-    };
-  } else {
-    db.collection(accountName).doc('projects').set({ projectsArray: [] });
-    return { success: true, 'message': 'Account is created successfully' };
-  }
+export const signUpWithEmailPassword = (
+  email: string,
+  password: string,
+  callback: (userId: string | undefined, errorMessage: string | null) => void,
+) => {
+  firebase.auth().createUserWithEmailAndPassword(email, password)
+    .then((user) => {
+      callback(user.user?.uid, null);
+    }).catch((err) => {
+    console.log(err);
+    callback(undefined, err.message);
+  });
 };
 
-export const signIn = async (accountName: string): Promise<{ success: boolean, message?: string }> => {
+export const signInWithEmailPassword = (
+  email: string,
+  password: string,
+  callback: (userId: string | undefined, errorMessage: string | null) => void,
+) => {
+  firebase.auth().signInWithEmailAndPassword(email, password)
+    .then((user) => {
+      callback(user.user?.uid, null);
+    }).catch((err) => {
+    console.log(err);
+    callback(undefined, err.message);
+  });
+};
 
-  const db = firebase.firestore();
-  const documentData = await db.collection(accountName).doc('projects').get();
-  if (documentData.exists) {
-    return { success: true };
-  } else {
-    return {
-      success: false,
-      message: 'Account does not exist. Please signup first.',
-    };
-  }
+export const signInWithGoogle = (callback: (userId: string | undefined, errorMessage: string | null) => void) => {
+  var provider = new firebase.auth.GoogleAuthProvider();
+  provider.setCustomParameters({
+    prompt: 'select_account'
+  });
+
+  firebase.auth()
+    .signInWithPopup(provider)
+    .then((result) => {
+      var userId = result.user?.uid;
+      callback(userId, null);
+    }).catch((error) => {
+    callback(undefined, error.message);
+  });
+};
+
+export const signOut = () => {
+  firebase.auth().signOut();
 };

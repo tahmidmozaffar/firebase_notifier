@@ -6,9 +6,9 @@ import { Routes } from '../routes';
 
 export const ProtectedRoute = ({ ...props }) => {
   const { getLocalItem } = useLocalStorage();
-  const accountName = getLocalItem(Keys.accountName);
+  const userId = getLocalItem(Keys.userId);
 
-  if (accountName.length === 0) {
+  if (userId.length === 0) {
     return <Redirect to={Routes.root}/>;
   }
 
