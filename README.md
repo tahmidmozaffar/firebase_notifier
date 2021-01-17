@@ -47,11 +47,11 @@ to start the project run `yarn start`
 
 Here is how it looks.
 
-![login](https://raw.githubusercontent.com/tahmidmozaffar/firebase_notifier/master/screenshot_1.png)
+![login](https://raw.githubusercontent.com/tahmidmozaffar/firebase_notifier/master/screen_1.png)
 
-![add_project](https://raw.githubusercontent.com/tahmidmozaffar/firebase_notifier/master/screenshot_2.png)
+![add_project](https://raw.githubusercontent.com/tahmidmozaffar/firebase_notifier/master/screen_2.png)
 
-![send_notifications](https://raw.githubusercontent.com/tahmidmozaffar/firebase_notifier/master/screenshot_3.png)
+![send_notifications](https://raw.githubusercontent.com/tahmidmozaffar/firebase_notifier/master/screen_3.png)
 
 
 ## License
