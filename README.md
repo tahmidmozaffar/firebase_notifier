@@ -23,38 +23,35 @@ To use this tool, you have to have some mechanism in your app to get the firebas
 ## How to run this project?
 Create a firebase project and add a web app there. Get the firebase configs and add those in `src/configs.json` file
 
-For now, I did not add firebase authentication. So you have to update the rule for firebase firestore to allow it without authentication. Go to firestore rule section and add this rule there.
+Update the rule for firebase firestore to allow access only if user is authenticated. Go to firestore rule section and add this rule there.
 
 ````
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /{document=**} {
-      allow read, write;
+      allow read, write: if request.auth != null;
     }
   }
 }
-````
-
-I know it is not good practice to make this public. But for now it will be like this. In future I will add proper authentication in this tool then we can change the rule  to be secure. 
-Or if you want to contribute implementing it now, feel free to make pull request. 
+```` 
 
 For amplitude id, go to their site, create your account and add a javascript project there. Then you can get the amplitude id. Add it in the `configs.json` file.
 
 I added amplitude to see some analytics of the project. If you don't want to use it, you can remove the dependency and code that depends on it from the project.
 
-
+to start the project run `yarn start`
 
 ## Future development
 - Add support for sending notifications to iOS Apps
-- Add proper authentication to access this tool.  
-- Add feature to save message as template.
 
 Here is how it looks.
 
-![add_project](https://raw.githubusercontent.com/tahmidmozaffar/firebase_notifier/master/screenshot_1.png)
+![login](https://raw.githubusercontent.com/tahmidmozaffar/firebase_notifier/master/screenshot_1.png)
 
-![send_notifications](https://raw.githubusercontent.com/tahmidmozaffar/firebase_notifier/master/screenshot_2.png)
+![add_project](https://raw.githubusercontent.com/tahmidmozaffar/firebase_notifier/master/screenshot_2.png)
+
+![send_notifications](https://raw.githubusercontent.com/tahmidmozaffar/firebase_notifier/master/screenshot_3.png)
 
 
 ## License
