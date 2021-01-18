@@ -125,4 +125,4 @@ const History: FC<Props> = ({ notifications }) => {
   );
 };
 
-export default History;
+export default React.memo(History);
